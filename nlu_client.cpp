@@ -137,7 +137,8 @@ namespace watson {
 
         std::ostringstream payload_out;
         payload_out << payload.dump();
-        const char* payload_cstr = payload_out.str().c_str();
+        std::string payload_str = payload_out.str();
+        const char* payload_cstr = payload_str.c_str();
 
         // std::cout << payload.dump(4);
 
@@ -147,7 +148,7 @@ namespace watson {
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_USERPWD, auth.str().c_str()))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, payload_cstr))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload_cstr))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, this->getApi_url().c_str())))
         {
