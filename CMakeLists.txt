@@ -6,6 +6,10 @@ set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
+if (EXISTS '/usr/local/Cellar/nlohmann_json/2.1.0/include')
+  include_directories('/usr/local/Cellar/nlohmann_json/2.1.0/include')
+endif()
+
 set(SOURCE_FILES main.cpp nlu_client.cpp nlu_client.h)
 find_package(Boost 1.63.0 COMPONENTS system filesystem program_options REQUIRED)
 find_package(CURL)
