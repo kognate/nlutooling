@@ -10,12 +10,12 @@ static size_t data_write(void* buf, size_t size, size_t nmemb, void* userp)
 {
     if(userp)
     {
-      std::ostream& os = *static_cast<std::ostream*>(userp);
-      size_t len = size * nmemb;
-      if(os.write(static_cast<char*>(buf), len)) {
-          os.flush();
-	return len;
-      }
+        std::ostream& os = *static_cast<std::ostream*>(userp);
+        size_t len = size * nmemb;
+        if(os.write(static_cast<char*>(buf), len)) {
+            os.flush();
+            return len;
+        }
     }
 
     return 0;
@@ -73,54 +73,54 @@ namespace watson {
         nlu_client::api_url = api_url;
     }
 
-  ApiResponse nlu_client::api_analyze(long timeout, std::ostream *output_stream)
-  {
-      ApiResponse response;
-      CURLcode code(CURLE_FAILED_INIT);
-      CURL* curl = curl_easy_init();
-      const char *authCString = getAuthString();
+    ApiResponse nlu_client::api_analyze(long timeout, std::ostream *output_stream)
+    {
+        ApiResponse response;
+        CURLcode code(CURLE_FAILED_INIT);
+        CURL* curl = curl_easy_init();
+        const char *authCString = getAuthString();
 
-      json payload = preparePayload();
+        json payload = preparePayload();
 
-      if(curl) {
-        struct curl_slist *chunk = NULL;
-        chunk = curl_slist_append(chunk, "Content-Type: application/json; charset=utf-8");
+        if(curl) {
+            struct curl_slist *chunk = NULL;
+            chunk = curl_slist_append(chunk, "Content-Type: application/json; charset=utf-8");
 
-        std::ostringstream payload_out;
-        payload_out << payload.dump();
-        std::string payload_str = payload_out.str();
-        const char* payload_cstr = payload_str.c_str();
+            std::ostringstream payload_out;
+            payload_out << payload.dump();
+            std::string payload_str = payload_out.str();
+            const char* payload_cstr = payload_str.c_str();
 
-        if (verbose) {
-            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-            std::cerr << payload_cstr << std::endl;
+            if (verbose) {
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+                std::cerr << payload_cstr << std::endl;
+            }
+
+            if(CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &data_write))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_stream))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_USERPWD, authCString))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload_cstr))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, payload_str.length()))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout))
+               && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, this->getApi_url().c_str()))) {
+                code = curl_easy_perform(curl);
+            }
+
+            long http_code = 0;
+            curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+            curl_easy_cleanup(curl);
+            curl_slist_free_all(chunk);
+            free((void *) authCString);
+            response.statusCode = http_code;
         }
+        response.code = code;
 
-        if(CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &data_write))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_stream))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_USERPWD, authCString))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload_cstr))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, payload_str.length()))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, this->getApi_url().c_str()))) {
-            code = curl_easy_perform(curl);
-        }
-
-        long http_code = 0;
-        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
-
-        curl_easy_cleanup(curl);
-        curl_slist_free_all(chunk);
-        free((void *) authCString);
-        response.statusCode = http_code;
+        return response;
     }
-      response.code = code;
-
-    return response;
-}
 
     char *nlu_client::getAuthString() {
         std::ostringstream auth;

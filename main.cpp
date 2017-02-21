@@ -30,7 +30,6 @@ std::string get_contents(std::string *filename) {
 int main(int argc, const char **argv) {
     std::string ofile, username, password, text, html, url;
 
-
     options_description desc("Allowed options");
 
     desc.add_options()

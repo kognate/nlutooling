@@ -11,6 +11,8 @@ if (EXISTS '/usr/local/Cellar/nlohmann_json/2.1.0/include')
 endif()
 
 set(SOURCE_FILES main.cpp nlu_client.cpp nlu_client.h)
+set(DISCOVERY_CLI_FILES discovery_cli.cpp discovery.cpp discovery.h discovery_cli.cpp)
+
 find_package(Boost 1.63.0 COMPONENTS system filesystem program_options REQUIRED)
 find_package(CURL)
 
@@ -28,14 +30,17 @@ if(Boost_FOUND)
 
 endif()
 
+add_library(watson nlu_client.cpp nlu_client.h discovery.cpp discovery.h)
 add_executable(nlutooling ${SOURCE_FILES})
+add_executable(discovery ${DISCOVERY_CLI_FILES})
 
 if(Boost_FOUND)
 
     target_link_libraries(nlutooling ${Boost_LIBRARIES})
-
+    target_link_libraries(discovery ${Boost_LIBRARIES})
 endif()
 
 if(CURL_FOUND)
     target_link_libraries(nlutooling ${CURL_LIBRARIES})
+    target_link_libraries(discovery ${CURL_LIBRARIES})
 endif()
