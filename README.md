@@ -7,3 +7,23 @@ a sample because it's still in development.
 # Is there anything safe here?
 
 Well, no.  But there is a relatively complete libcurl method.  
+
+
+# Building
+
+You'll need to install `json.hpp`.  If your on a Mac, you can run
+`brew tap nlohmann/json` and `brew install nlohmann_json` to install.  Otherwise
+you'll need to get it from https://github.com/nlohmann/json
+
+You'll also need to have Boost installed.  Lastly, you'll need `cmake`.
+
+```
+$ git clone git@github.com:kognate/nlutooling.git
+$ cd nlutooling
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ ./nlutooling -h
+```
+

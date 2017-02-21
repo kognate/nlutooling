@@ -18,14 +18,33 @@ namespace watson {
     enum QueryKind { Html, Url, Text };
     enum Features { Concepts, Keywords, Entities, Relations, SemanticRoles, Categories, Emotion, Sentiment };
 
+    struct ApiResponse {
+        CURLcode code;
+        long statusCode;
+    };
+
     class nlu_client {
 
     private:
         std::string url, html, text;
         std::string username, password, api_url;
         const std::string &getPassword() const;
-        CURLcode curl_read(long timeout, std::ostream *output_stream);
+        ApiResponse api_analyze(long timeout, std::ostream *output_stream);
         std::set<Features> features;
+        bool verbose = false;
+    public:
+        void setVerbose(bool verbose);
+
+    private:
+
+        nlohmann::json &updateQueryForKind(nlohmann::json &payload);
+
+        nlohmann::json &buildFeatures(nlohmann::json &features);
+
+        nlohmann::json preparePayload();
+
+        char *getAuthString();
+
     public:
         const std::set<Features> &getFeatures() const;
 

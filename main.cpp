@@ -11,14 +11,18 @@ using namespace boost::program_options;
 #include "nlu_client.h"
 
 std::string get_contents(std::string *filename) {
-    if (boost::filesystem::exists(*filename)) {
-        std::ifstream in(filename->c_str(), std::ios::in | std::ios::binary);
-        if (in) {
-            return (std::string((std::istreambuf_iterator<char>(in)),
-                                std::istreambuf_iterator<char>()));
+    try {
+        if (boost::filesystem::exists(*filename)) {
+            std::ifstream in(filename->c_str(), std::ios::in | std::ios::binary);
+            if (in) {
+                return (std::string((std::istreambuf_iterator<char>(in)),
+                                    std::istreambuf_iterator<char>()));
+            }
+            throw (errno);
+        } else {
+            return *filename;
         }
-        throw (errno);
-    } else {
+    } catch (const boost::filesystem::filesystem_error &e) {
         return *filename;
     }
 }
@@ -37,6 +41,7 @@ int main(int argc, const char **argv) {
             ("text,t", value<std::string>(&text), "text or file name containing text to analyze")
             ("html,l", value<std::string>(&html), "html string or file name containing html to analyze")
             ("url,r", value<std::string>(&url), "string url to fetch and analyze")
+            ("verbose,v", "set's verbose output")
             ;
 
     variables_map vm;
@@ -51,6 +56,11 @@ int main(int argc, const char **argv) {
 
     watson::nlu_client *client;
     client = new watson::nlu_client(username, password);
+
+    if (vm.count("verbose")) {
+        client->setVerbose(true);
+    }
+
     if (vm.count("text")) {
         client->setText(get_contents(&text));
     }
@@ -63,7 +73,7 @@ int main(int argc, const char **argv) {
         client->setUrl(url);
     }
 
-    std::set<watson::Features> features = { watson::Emotion, watson::Sentiment };
+    std::set<watson::Features> features = { watson::Emotion, watson::Sentiment, watson::Concepts, watson::Keywords };
     client->setFeatures(features);
     std::cout << client->analyze().dump(4) << std::endl;
 
