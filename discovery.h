@@ -20,9 +20,6 @@ namespace watson {
     public:
 
         discovery(std::string &username, const std::string &password);
-
-        discovery(const std::string &api_key);
-
         nlohmann::json get_environments();
         nlohmann::json get_collections(std::string environment_id);
         nlohmann::json get_collection(std::string environment_id, std::string collection_id);
