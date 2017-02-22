@@ -12,38 +12,26 @@
 #include <iostream>
 #include <string>
 #include <set>
+#include "watson.h"
 
 namespace watson {
-    class discovery {
-
-    private:
-        std::string username, password, api_url;
-        void setApi_url(const std::string &api_url);
+    class discovery: public watson {
 
     public:
-        const std::string &getUsername() const;
 
-        void setUsername(const std::string &username);
+        discovery(std::string &username, const std::string &password);
 
-        const std::string &getPassword() const;
+        discovery(const std::string &api_key);
 
-        void setPassword(const std::string &password);
-
-        const std::string &getApi_url() const;
-
-        discovery(std::string username, std::string password);
         nlohmann::json get_environments();
         nlohmann::json get_collections(std::string environment_id);
         nlohmann::json get_collection(std::string environment_id, std::string collection_id);
         nlohmann::json get_document(std::string environment_id, std::string collection_id, std::string document_id);
+        nlohmann::json upload_document(std::string environment_id, std::string collection_id, std::string filename);
         nlohmann::json query(std::string environment_id, std::string collection_id, std::string query);
 
-    private:
-        char *getAuthString();
-        CURLcode do_get(long timeout,  std::string url, std::ostream *output_stream);
-
-    public:
-        nlohmann::json list_environments();
+    protected:
+        char *getAuthString() override;
     };
 }
 

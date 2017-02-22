@@ -11,7 +11,7 @@ using namespace boost::program_options;
 #include "discovery.h"
 
 int main(int argc, const char **argv) {
-    std::string username, password, envid, collectionid, query, documentid;
+    std::string username, password, envid, collectionid, query, documentid, filename;
     options_description desc("Allowed options");
 
     desc.add_options()
@@ -20,6 +20,7 @@ int main(int argc, const char **argv) {
             ("password,p", value<std::string>(&password)->required(), "password")
             ("environment,e", value<std::string>(&envid), "environment quid")
             ("collection,c", value<std::string>(&collectionid), "collection guid")
+            ("file,f", value<std::string>(&filename), "collection guid")
             ("query,q", value<std::string>(&query), "query")
             ("document,d", value<std::string>(&documentid), "get a document")
             ;
@@ -36,7 +37,9 @@ int main(int argc, const char **argv) {
 
     watson::discovery *disco = new watson::discovery(username, password);
 
-    if (vm.count("collection") && vm.count("environment") && vm.count("document")) {
+    if (vm.count("collection") && vm.count("environment") && vm.count("document") && vm.count("file")) {
+        std::cout << disco->upload_document(envid, collectionid, filename).dump(4) << std::endl;
+    } else if (vm.count("collection") && vm.count("environment") && vm.count("document")) {
         std::cout << disco->get_document(envid, collectionid, documentid).dump(4) << std::endl;
     } else if (vm.count("collection") && vm.count("environment") && vm.count("query")) {
         std::cout << disco->query(envid, collectionid, query).dump(4) << std::endl;
