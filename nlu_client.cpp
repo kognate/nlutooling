@@ -166,9 +166,15 @@ namespace watson {
                     break;
                 case Emotion:
                     features["emotion"] = json::object();
+                    if (targeted_emotion.size() > 0) {
+                        features["emotion"]["targets"] = targeted_emotion;
+                    }
                     break;
                 case Sentiment:
                     features["sentiment"] = json::object();
+                    if (targeted_sentiment.size() > 0) {
+                        features["sentiment"]["targets"] = targeted_sentiment;
+                    }
                     break;
                 default:
                     break;
@@ -239,5 +245,22 @@ namespace watson {
     void nlu_client::setVerbose(bool verbose) {
         nlu_client::verbose = verbose;
     }
+
+    const std::vector<std::string> &nlu_client::getTargeted_emotion() const {
+        return targeted_emotion;
+    }
+
+    void nlu_client::setTargeted_emotion(const std::vector<std::string> &targeted_emotion) {
+        nlu_client::targeted_emotion = targeted_emotion;
+    }
+
+    const std::vector<std::string> &nlu_client::getTargeted_sentiment() const {
+        return targeted_sentiment;
+    }
+
+    void nlu_client::setTargeted_sentiment(const std::vector<std::string> &targeted_sentiment) {
+        nlu_client::targeted_sentiment = targeted_sentiment;
+    }
+
 }
 

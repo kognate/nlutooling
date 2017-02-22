@@ -28,6 +28,19 @@ namespace watson {
     private:
         std::string url, html, text;
         std::string username, password, api_url;
+        std::vector<std::string> targeted_emotion, targeted_sentiment;
+    public:
+        const std::vector<std::string> &getTargeted_emotion() const;
+
+        void setTargeted_emotion(const std::vector<std::string> &targeted_emotion);
+
+        const std::vector<std::string> &getTargeted_sentiment() const;
+
+        void setTargeted_sentiment(const std::vector<std::string> &targeted_sentiment);
+
+    public:
+
+    private:
         const std::string &getPassword() const;
         ApiResponse api_analyze(long timeout, std::ostream *output_stream);
         std::set<Features> features;
