@@ -24,7 +24,7 @@ namespace watson {
         return 0;
     }
 
-    discovery::discovery(std::string &username, const std::string &password) : watson(username, password) {
+    discovery::discovery(std::string &username, const std::string &password) : BaseWatsonService(username, password) {
         setApi_url("https://gateway.watsonplatform.net/discovery/api");
     }
 

@@ -2,50 +2,50 @@
 // Created by Josh Smith on 2/21/17.
 //
 
-#include "watson.h"
+#include "BaseWatsonService.h"
 
-watson::watson::watson(std::string api_key) {
+watson::BaseWatsonService::BaseWatsonService(std::string api_key) {
     setApi_key(api_key);
 }
 
-watson::watson::watson(std::string &username, std::string password) {
+watson::BaseWatsonService::BaseWatsonService(std::string &username, std::string password) {
     setUsername(username);
     setPassword(password);
 }
 
-const std::string &watson::watson::getUsername() const {
+const std::string &watson::BaseWatsonService::getUsername() const {
     return username;
 }
 
-void watson::watson::setUsername(const std::string &username) {
-    watson::username = username;
+void watson::BaseWatsonService::setUsername(const std::string &username) {
+    BaseWatsonService::username = username;
 }
 
-const std::string &watson::watson::getPassword() const {
+const std::string &watson::BaseWatsonService::getPassword() const {
     return password;
 }
 
-void watson::watson::setPassword(const std::string &password) {
-    watson::password = password;
+void watson::BaseWatsonService::setPassword(const std::string &password) {
+    BaseWatsonService::password = password;
 }
 
-const std::string &watson::watson::getApi_key() const {
+const std::string &watson::BaseWatsonService::getApi_key() const {
     return api_key;
 }
 
-void watson::watson::setApi_key(const std::string &api_key) {
-    watson::api_key = api_key;
+void watson::BaseWatsonService::setApi_key(const std::string &api_key) {
+    BaseWatsonService::api_key = api_key;
 }
 
-const std::string &watson::watson::getApi_url() const {
+const std::string &watson::BaseWatsonService::getApi_url() const {
     return api_url;
 }
 
-void watson::watson::setApi_url(const std::string &api_url) {
-    watson::api_url = api_url;
+void watson::BaseWatsonService::setApi_url(const std::string &api_url) {
+    BaseWatsonService::api_url = api_url;
 }
 
-size_t watson::watson::data_write(void *buf, size_t size, size_t nmemb, void *userp) {
+size_t watson::BaseWatsonService::data_write(void *buf, size_t size, size_t nmemb, void *userp) {
     if(userp)
     {
         std::ostream& os = *static_cast<std::ostream*>(userp);
@@ -58,7 +58,7 @@ size_t watson::watson::data_write(void *buf, size_t size, size_t nmemb, void *us
     return 0;
 }
 
-CURLcode watson::watson::do_get(long timeout, std::string url, std::ostream *output_stream) {
+CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::ostream *output_stream) {
     CURLcode code(CURLE_FAILED_INIT);
     CURL* curl = curl_easy_init();
     const char *authCString = this->getAuthString();
@@ -88,7 +88,7 @@ CURLcode watson::watson::do_get(long timeout, std::string url, std::ostream *out
     return code;
 }
 
-CURLcode watson::watson::do_post(long timeout, std::string url, std::string filename, std::ostream *output_stream) {
+CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::string filename, std::ostream *output_stream) {
     struct curl_httppost* post = NULL;
     struct curl_httppost* last = NULL;
 

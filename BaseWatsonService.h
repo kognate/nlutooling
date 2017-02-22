@@ -14,7 +14,7 @@
 #include <set>
 
 namespace watson {
-    class watson {
+    class BaseWatsonService {
     private:
         std::string username, password, api_key, api_url;
         static size_t data_write(void* buf, size_t size, size_t nmemb, void* userp);
@@ -38,8 +38,8 @@ namespace watson {
 
     protected:
     public:
-        watson(std::string &username, std::string password);
-        watson(std::string api_key);
+        BaseWatsonService(std::string &username, std::string password);
+        BaseWatsonService(std::string api_key);
 
     protected:
         virtual char *getAuthString()= 0;

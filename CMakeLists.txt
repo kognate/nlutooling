@@ -10,8 +10,8 @@ if (EXISTS '/usr/local/Cellar/nlohmann_json/2.1.0/include')
   include_directories('/usr/local/Cellar/nlohmann_json/2.1.0/include')
 endif()
 
-set(SOURCE_FILES main.cpp nlu_client.cpp nlu_client.h watson.cpp watson.h)
-set(DISCOVERY_CLI_FILES discovery_cli.cpp discovery.cpp discovery.h discovery_cli.cpp watson.cpp watson.h)
+set(SOURCE_FILES main.cpp nlu_client.cpp nlu_client.h BaseWatsonService.cpp BaseWatsonService.h)
+set(DISCOVERY_CLI_FILES discovery_cli.cpp discovery.cpp discovery.h discovery_cli.cpp BaseWatsonService.cpp BaseWatsonService.h)
 
 find_package(Boost 1.63.0 COMPONENTS system filesystem program_options REQUIRED)
 find_package(CURL)

@@ -12,10 +12,10 @@
 #include <iostream>
 #include <string>
 #include <set>
-#include "watson.h"
+#include "BaseWatsonService.h"
 
 namespace watson {
-    class discovery: public watson {
+    class discovery: public BaseWatsonService {
 
     public:
 
