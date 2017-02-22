@@ -35,8 +35,8 @@ namespace watson {
     }
 
     void nlu_client::setUrl(const std::string &url) {
+        setQueryKind(Url);
         nlu_client::url = url;
-        this->queryKind = Url;
     }
 
     const std::string &nlu_client::getUrl() const {
@@ -48,7 +48,7 @@ namespace watson {
     }
 
     void nlu_client::setHtml(const std::string &html) {
-        this->queryKind = Html;
+        setQueryKind(Html);
         nlu_client::html = html;
     }
 
@@ -57,7 +57,7 @@ namespace watson {
     }
 
     void nlu_client::setText(const std::string &text) {
-        this->queryKind = Text;
+        setQueryKind(Text);
         nlu_client::text = text;
     }
 
@@ -178,7 +178,7 @@ namespace watson {
     }
 
     json &nlu_client::updateQueryForKind(json &payload)  {
-        switch (queryKind) {
+        switch (getQueryKind()) {
             case Html:
                 payload["html"] = this->getHtml();
                 break;
