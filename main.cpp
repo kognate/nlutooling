@@ -98,26 +98,17 @@ void run_nlu(parsed_options opts_in) {
         client->setUrl(url);
     }
 
-    std::set<watson::Features> features; //  = { watson::Emotion, watson::Sentiment, watson::Concepts, watson::Keywords, watson::Entities };
+    std::set<watson::Features> features;
+    std::map<std::string, watson::Features> feature_map = { {std::string("sentiment"), watson::Sentiment },
+                                                            {std::string("keywords"), watson::Keywords },
+                                                            {std::string("entities"), watson::Entities},
+                                                            {std::string("relations"), watson::Relations},
+                                                            {std::string("semanticroles"), watson::SemanticRoles},
+                                                            {std::string("categories"), watson::Categories},
+                                                            {std::string("emotion"), watson::Emotion}};
     if (vm.count("feature")) {
         for (auto feature : vm["feature"].as<std::vector<std::string>>()) {
-            if (feature == std::string("sentiment")) {
-                features.insert(watson::Sentiment);
-            } else if (feature == std::string("concepts")) {
-                features.insert(watson::Sentiment);
-            } else if (feature == std::string("keywords")) {
-                features.insert(watson::Keywords);
-            } else if (feature == std::string("entities")) {
-                features.insert(watson::Entities);
-            } else if (feature == std::string("relations")) {
-                features.insert(watson::Relations);
-            } else if (feature == std::string("semanticroles")) {
-                features.insert(watson::SemanticRoles);
-            } else if (feature == std::string("categories")) {
-                features.insert(watson::Categories);
-            } else if (feature == std::string("emotion")) {
-                features.insert(watson::Emotion);
-            }
+            features.insert(feature_map[feature]);
         }
     } else {
         features = { watson::Emotion, watson::Sentiment, watson::Concepts, watson::Keywords, watson::Entities };
