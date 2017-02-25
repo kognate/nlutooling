@@ -21,9 +21,129 @@ static size_t data_write(void* buf, size_t size, size_t nmemb, void* userp)
     return 0;
 }
 
-const char *BASE_URL="https://gateway-s.watsonplatform.net/natural-language-understanding/api/v1/analyze?version=2016-01-23";
+const char *BASE_URL="https://gateway.watsonplatform.net/natural-language-understanding/api/v1/analyze?version=2016-01-23";
 
 namespace watson {
+
+    std::string get_contents(std::string *filename) {
+        try {
+            if (boost::filesystem::exists(*filename)) {
+                std::ifstream in(filename->c_str(), std::ios::in | std::ios::binary);
+                if (in) {
+                    return (std::string((std::istreambuf_iterator<char>(in)),
+                                        std::istreambuf_iterator<char>()));
+                }
+                throw (errno);
+            } else {
+                return *filename;
+            }
+        } catch (const boost::filesystem::filesystem_error &e) {
+            return *filename;
+        }
+    }
+
+    const std::string name_mapper(std::string arg) {
+        std::map<std::string, std::string> env_mapper = { {"NATURAL_LANGUAGE_UNDERSTANDING_USERNAME", "username"},
+                                                          {"NATURAL_LANGUAGE_UNDERSTANDING_PASSWORD", "password"},
+                                                          {"NATURAL_LANGUAGE_UNDERSTANDING_URL", "api_url"} };
+        std::map<std::string, std::string>::iterator found;
+        found = env_mapper.find(arg);
+        if (found == env_mapper.end()) {
+            return std::string("");
+        } else {
+            return found->second;
+        }
+    }
+
+    void run_nlu(parsed_options opts_in) {
+        variables_map nluVariablesMap;
+
+        options_description nlu_options("Allowed options");
+
+        nlu_options.add_options()
+                ("help,h", "print usage message")
+                ("verbose,v", "verbose")
+                ("api_url,a", value<std::string>(), "API Url (not the url to fetch)" )
+                ("username,u", value<std::string>()->required(), "username (required)")
+                ("password,p", value<std::string>()->required(), "password (required)")
+                ("text,t", value<std::string>(), "text or file name containing text to analyze")
+                ("html,l", value<std::string>(), "html string or file name containing html to analyze")
+                ("emotion,e", value<std::vector<std::string>>()->multitoken(), "targeted emotion string")
+                ("sentiment,s", value<std::vector<std::string>>()->multitoken(), "targeted sentiment string")
+                ("feature,f", value<std::vector<std::string>>()->multitoken(), "set of features to use")
+                ("url,r", value<std::string>(), "string url to fetch and analyze")
+                ;
+
+
+        std::vector<std::string> opts = collect_unrecognized(opts_in.options, include_positional);
+        opts.erase(opts.begin());
+        store(command_line_parser(opts).options(nlu_options).run(), nluVariablesMap);
+        store(parse_environment(nlu_options, &name_mapper),nluVariablesMap);
+        if (nluVariablesMap.count("help")) {
+            std::cout << nlu_options << "\n";
+            return;
+        }
+
+        try {
+            notify(nluVariablesMap);
+        } catch (...) {
+            std::cout << nlu_options << std::endl;
+            return;
+        }
+
+        watson::nlu_client *client;
+        std::string username, password;
+        username = nluVariablesMap["username"].as<std::string>();
+        password = nluVariablesMap["password"].as<std::string>();
+        client = new watson::nlu_client(username, password);
+
+        if (nluVariablesMap.count("verbose")) {
+            client->setVerbose(true);
+        }
+
+        if (nluVariablesMap.count("sentiment")) {
+            client->setTargeted_sentiment(nluVariablesMap["sentiment"].as<std::vector<std::string>>());
+        }
+
+        if (nluVariablesMap.count("emotion")) {
+            client->setTargeted_emotion(nluVariablesMap["emotion"].as<std::vector<std::string>>());
+        }
+
+        if (nluVariablesMap.count("text")) {
+            std::string text = nluVariablesMap["text"].as<std::string>();
+            client->setText(get_contents(&text));
+        }
+
+        if (nluVariablesMap.count("html")) {
+            std::string html = nluVariablesMap["html"].as<std::string>();
+            client->setHtml(get_contents(&html));
+        }
+
+        if (nluVariablesMap.count("url")) {
+            std::string url = nluVariablesMap["url"].as<std::string>();
+            client->setUrl(url);
+        }
+
+        std::set<watson::Features> features;
+        std::map<std::string, watson::Features> feature_map = { {std::string("sentiment"), watson::Sentiment },
+                                                                {std::string("keywords"), watson::Keywords },
+                                                                {std::string("entities"), watson::Entities},
+                                                                {std::string("relations"), watson::Relations},
+                                                                {std::string("semanticroles"), watson::SemanticRoles},
+                                                                {std::string("categories"), watson::Categories},
+                                                                {std::string("emotion"), watson::Emotion}};
+        if (nluVariablesMap.count("feature")) {
+            for (auto feature : nluVariablesMap["feature"].as<std::vector<std::string>>()) {
+                features.insert(feature_map[feature]);
+            }
+        } else {
+            features = { watson::Emotion, watson::Sentiment, watson::Concepts, watson::Keywords, watson::Entities };
+        }
+
+        client->setFeatures(features);
+        std::cout << client->analyze().dump(4) << std::endl;
+    }
+
     nlu_client::nlu_client() {
         this->setApi_url(std::string(BASE_URL));
     }

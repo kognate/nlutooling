@@ -13,10 +13,16 @@
 #include <set>
 #include <json.hpp>
 
+#include <boost/program_options.hpp>
+using namespace boost::program_options;
+#include <boost/filesystem.hpp>
+
 namespace watson {
 
     enum QueryKind { Html, Url, Text };
     enum Features { Concepts, Keywords, Entities, Relations, SemanticRoles, Categories, Emotion, Sentiment };
+
+    void run_nlu(parsed_options opts_in);
 
     struct ApiResponse {
         CURLcode code;
