@@ -137,6 +137,7 @@ int main(int argc, const char **argv) {
             run();
 
     store(parsed, vm);
+
     try {
         notify(vm);
     } catch (...) {
@@ -148,7 +149,7 @@ int main(int argc, const char **argv) {
 
     if (cmd == std::string("nlu")) {
         run_nlu(parsed);
-    } else if (cmd == std::string("help")) {
+    } else {
         usage();
         return 0;
     }
