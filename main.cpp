@@ -44,7 +44,7 @@ int main(int argc, const char **argv) {
     std::string cmd = vm["command"].as<std::string>();
 
     if (cmd == std::string("nlu")) {
-        watson::run_nlu(parsed);
+        watson::v1::run_nlu(parsed);
     } else {
         usage();
         return 0;
