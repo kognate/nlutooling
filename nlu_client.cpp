@@ -72,9 +72,9 @@ namespace watson {
                     ("emotion,e", value<std::vector<std::string>>()->multitoken(), "targeted emotion string")
                     ("sentiment,s", value<std::vector<std::string>>()->multitoken(), "targeted sentiment string")
                     ("feature,f", value<std::vector<std::string>>()->multitoken(), "set of features to use")
+                    ("return_analyzed_text", "return the text of the fetched url (only valid for URL searches")
                     ("url,r", value<std::string>(), "string url to fetch and analyze")
                     ;
-
 
             std::vector<std::string> opts = collect_unrecognized(opts_in.options, include_positional);
             opts.erase(opts.begin());
@@ -97,6 +97,12 @@ namespace watson {
             username = nluVariablesMap["username"].as<std::string>();
             password = nluVariablesMap["password"].as<std::string>();
             client = new watson::v1::nlu_client(username, password);
+
+            if (nluVariablesMap.count("return_analyzed_text")) {
+                client->setReturn_analyzed_text(true);
+            } else {
+                client->setReturn_analyzed_text(false);
+            }
 
             if (nluVariablesMap.count("verbose")) {
                 client->setVerbose(true);
@@ -148,13 +154,13 @@ namespace watson {
         }
 
         nlu_client::nlu_client() {
-            this->setApi_url(std::string(BASE_URL));
+            setApi_url(std::string(BASE_URL));
         }
 
         nlu_client::nlu_client(std::string username, std::string password) {
-            this->setApi_url(std::string(BASE_URL));
-            this->setUsername(username);
-            this->setPassword(password);
+            setApi_url(std::string(BASE_URL));
+            setUsername(username);
+            setPassword(password);
         }
 
         void nlu_client::setUrl(const std::string &url) {
@@ -263,6 +269,9 @@ namespace watson {
             json features;
             features = buildFeatures(features);
             payload["features"] = features;
+            if (isReturn_analyzed_text()) {
+                payload["return_analyzed_text"] = "true";
+            }
             return payload;
         }
 
@@ -383,6 +392,14 @@ namespace watson {
 
         void nlu_client::setTargeted_sentiment(const std::vector<std::string> &targeted_sentiment) {
             nlu_client::targeted_sentiment = targeted_sentiment;
+        }
+
+        bool nlu_client::isReturn_analyzed_text() const {
+            return return_analyzed_text;
+        }
+
+        void nlu_client::setReturn_analyzed_text(bool return_analyzed_text) {
+            nlu_client::return_analyzed_text = return_analyzed_text;
         }
     }
 }

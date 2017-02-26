@@ -35,6 +35,11 @@ namespace watson {
             std::string url, html, text;
             std::string username, password, api_url;
             std::vector<std::string> targeted_emotion, targeted_sentiment;
+            bool return_analyzed_text;
+        public:
+            bool isReturn_analyzed_text() const;
+            void setReturn_analyzed_text(bool return_analyzed_text);
+
         public:
             const std::vector<std::string> &getTargeted_emotion() const;
 

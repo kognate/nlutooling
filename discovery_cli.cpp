@@ -20,7 +20,7 @@ int main(int argc, const char **argv) {
             ("password,p", value<std::string>(&password)->required(), "password")
             ("environment,e", value<std::string>(&envid), "environment quid")
             ("collection,c", value<std::string>(&collectionid), "collection guid")
-            ("file,f", value<std::string>(&filename), "collection guid")
+            ("file,f", value<std::string>(&filename), "document to add")
             ("query,q", value<std::string>(&query), "query")
             ("document,d", value<std::string>(&documentid), "get a document")
             ;
