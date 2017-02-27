@@ -3,3 +3,5 @@
 //
 
 #include "vision.h"
+
+watson::v3::vision::vision(const std::string &api_key) : BaseWatsonService(api_key) {}
