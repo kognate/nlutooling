@@ -89,16 +89,26 @@ CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::o
 }
 
 CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::string filename, std::ostream *output_stream) {
+    std::map<std::string, std::string> filename_map = { {std::string("file"), filename } };
+    return do_post(timeout, url, filename_map, output_stream);
+}
+
+CURLcode watson::BaseWatsonService::do_post(long timeout,
+                                            std::string url,
+                                            std::map<std::string, std::string> filename_map,
+                                            std::ostream *output_stream) {
     struct curl_httppost* post = NULL;
     struct curl_httppost* last = NULL;
 
-    curl_formadd(&post,
-                 &last,
-                 CURLFORM_COPYNAME,
-                 "file",
-                 CURLFORM_FILE,
-                 filename.c_str(),
-                 CURLFORM_END);
+    for (auto file: filename_map) {
+        curl_formadd(&post,
+                     &last,
+                     CURLFORM_COPYNAME,
+                     file.first.c_str(),
+                     CURLFORM_FILE,
+                     file.second.c_str(),
+                     CURLFORM_END);
+    }
 
     CURLcode code(CURLE_FAILED_INIT);
     CURL* curl = curl_easy_init();
@@ -130,4 +140,14 @@ CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::
     return code;
 }
 
+CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::ostream *output_stream) {
+    return CURLE_RECV_ERROR;
+}
 
+void watson::BaseWatsonService::addPostParameter(watson::post_parameter param) {
+
+}
+
+std::vector<watson::post_parameter> watson::BaseWatsonService::getPostParameters() {
+    return post_parameters;
+}
