@@ -9,9 +9,10 @@ using namespace boost::program_options;
 #include <streambuf>
 #include <cerrno>
 #include "nlu_client.h"
+#include "discovery_cli.h"
 
 void usage() {
-    std::cout << "only command supported is nlu" << std::endl;
+    std::cout << "Commands are nlu or discovery or vision (try `watson nlu -h`)" << std::endl;
 }
 
 int main(int argc, const char **argv) {
@@ -45,6 +46,8 @@ int main(int argc, const char **argv) {
 
     if (cmd == std::string("nlu")) {
         watson::v1::run_nlu(parsed);
+    } else if (cmd == std::string("discovery")) {
+        watson::run_discovery(parsed);
     } else {
         usage();
         return 0;

@@ -69,6 +69,10 @@ CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::o
         }
     }
 
+    if (isVerbose()) {
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    }
+
     if(curl) {
         if(CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &data_write))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_stream))
@@ -150,4 +154,12 @@ void watson::BaseWatsonService::addPostParameter(watson::post_parameter param) {
 
 std::vector<watson::post_parameter> watson::BaseWatsonService::getPostParameters() {
     return post_parameters;
+}
+
+bool watson::BaseWatsonService::isVerbose() const {
+    return verbose;
+}
+
+void watson::BaseWatsonService::setVerbose(bool verbose) {
+    BaseWatsonService::verbose = verbose;
 }

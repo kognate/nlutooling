@@ -138,6 +138,7 @@ namespace watson {
                                                                     {std::string("relations"), watson::v1::Relations},
                                                                     {std::string("semanticroles"), watson::v1::SemanticRoles},
                                                                     {std::string("categories"), watson::v1::Categories},
+                                                                    {std::string("concepts"), watson::v1::Concepts},
                                                                     {std::string("emotion"), watson::v1::Emotion}};
             if (nluVariablesMap.count("feature")) {
                 for (auto feature : nluVariablesMap["feature"].as<std::vector<std::string>>()) {

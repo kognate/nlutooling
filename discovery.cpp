@@ -81,8 +81,11 @@ namespace watson {
         }
     }
 
-    json discovery::query(std::string environment_id, std::string collection_id, std::string query) {
+    json discovery::query(std::string environment_id, std::string collection_id, std::string query, std::string aggregations) {
         std::string url = getApi_url() + "/v1/environments/" + environment_id + "/collections/" + collection_id + "/query?version=2016-12-29&" + query;
+        if (aggregations.size() > 0) {
+            url = url + "&" + aggregations;
+        }
         std::ostringstream buffer;
         CURLcode res = do_get(30, url, &buffer);
         if (res == CURLE_OK) {

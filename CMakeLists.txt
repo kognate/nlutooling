@@ -28,8 +28,7 @@ if (EXISTS '/usr/local/Cellar/nlohmann_json/2.1.0/include')
   include_directories('/usr/local/Cellar/nlohmann_json/2.1.0/include')
 endif()
 
-set(SOURCE_FILES main.cpp nlu_client.cpp nlu_client.h BaseWatsonService.cpp BaseWatsonService.h vision.cpp vision.h post_parameter.cpp post_parameter.h)
-set(DISCOVERY_CLI_FILES discovery_cli.cpp discovery.cpp discovery.h discovery_cli.cpp BaseWatsonService.cpp BaseWatsonService.h)
+set(SOURCE_FILES main.cpp discovery_cli.cpp discovery.cpp discovery.h nlu_client.cpp nlu_client.h BaseWatsonService.cpp BaseWatsonService.h vision.cpp vision.h post_parameter.cpp post_parameter.h discovery_cli.h)
 
 find_package(Boost 1.63.0 COMPONENTS system filesystem program_options REQUIRED)
 find_package(CURL REQUIRED)
@@ -50,15 +49,11 @@ endif()
 
 add_library(watsonsdk nlu_client.cpp nlu_client.h discovery.cpp discovery.h vision.cpp vision.h)
 add_executable(watson ${SOURCE_FILES})
-add_executable(discovery ${DISCOVERY_CLI_FILES})
 
 if(Boost_FOUND)
-
     target_link_libraries(watson ${Boost_LIBRARIES})
-    target_link_libraries(discovery ${Boost_LIBRARIES})
 endif()
 
 if(CURL_FOUND)
     target_link_libraries(watson ${CURL_LIBRARIES})
-    target_link_libraries(discovery ${CURL_LIBRARIES})
 endif()

@@ -8,6 +8,12 @@ a sample because it's still in development.
 
 Well, no.  But there is a relatively complete libcurl method.  
 
+# Prerequisits
+
+You should install [jq](https://stedolan.github.io/jq/). The output
+of all the commands is json, and `jq` is a cli json parser/tool
+that is to json what awk is to text.  
+
 
 # Building
 

@@ -20,6 +20,11 @@ namespace watson {
         std::string username, password, api_key, api_url;
         static size_t data_write(void* buf, size_t size, size_t nmemb, void* userp);
         std::vector<post_parameter> post_parameters = std::vector<watson::post_parameter>();
+        bool verbose = {false};
+    public:
+        bool isVerbose() const;
+
+        void setVerbose(bool verbose);
 
     public:
         const std::string &getUsername() const;

@@ -25,7 +25,7 @@ namespace watson {
         nlohmann::json get_collection(std::string environment_id, std::string collection_id);
         nlohmann::json get_document(std::string environment_id, std::string collection_id, std::string document_id);
         nlohmann::json upload_document(std::string environment_id, std::string collection_id, std::string filename);
-        nlohmann::json query(std::string environment_id, std::string collection_id, std::string query);
+        nlohmann::json query(std::string environment_id, std::string collection_id, std::string query, std::string aggregations);
 
     protected:
         char *getAuthString() override;
