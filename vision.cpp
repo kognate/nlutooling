@@ -51,3 +51,11 @@ nlohmann::json watson::v3::vision::classify(std::string filename, std::vector<st
     WatsonServiceResult res = do_post(30, url, &buffer);
     return getJsonResult(res, buffer);
 }
+
+nlohmann::json watson::v3::vision::delete_classifier(std::string classifier_id) {
+    std::ostringstream buffer;
+    std::string url = getApi_url() + "/v3/classifiers/" + classifier_id + "?api_key=" + getApi_key() + "&version=" + getVersion();
+
+    WatsonServiceResult res = do_delete(30, url, &buffer);
+    return getJsonResult(res, buffer);
+}

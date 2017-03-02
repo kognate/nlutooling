@@ -180,7 +180,7 @@ void watson::BaseWatsonService::setVersion(const std::string &version) {
 }
 
 nlohmann::json watson::BaseWatsonService::getJsonResult(watson::WatsonServiceResult res, std::ostringstream &buffer) {
-    if (res.curl_code == CURLE_OK) {
+    if (res.curl_code == CURLE_OK && res.http_status == 200L) {
         return nlohmann::json::parse(buffer.str());
     } else {
         nlohmann::json results = nlohmann::json::object();
@@ -219,7 +219,7 @@ watson::BaseWatsonService::do_delete(long timeout, std::string url, std::ostream
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout))
-           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "delete"))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE"))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, url.c_str()))) {
             code = curl_easy_perform(curl);
             res.curl_code = code;
