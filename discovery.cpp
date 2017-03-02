@@ -28,15 +28,8 @@ namespace watson {
     json discovery::get_collections(std::string environment_id) {
         std::string url = getApi_url() + "/v1/environments/" + environment_id + "/collections?version=2016-12-29";
         std::ostringstream buffer;
-        CURLcode res = do_get(30, url, &buffer);
-        if (res == CURLE_OK) {
-            return json::parse(buffer.str());
-        } else {
-            json results = json::object();
-            results["code"] = curl_easy_strerror(res);
-            results["body"] = "Error!";
-            return results;
-        }
+        WatsonServiceResult res = do_get(30, url, &buffer);
+        return getJsonResult(res, buffer);
     }
 
     json discovery::upload_document(std::string environment_id, std::string collection_id, std::string filename) {
@@ -44,43 +37,22 @@ namespace watson {
         std::ostringstream buffer;
         std::shared_ptr<file_post_parameter> fpp = std::make_shared<file_post_parameter>(std::string("file"), filename);
         addPostParameter(fpp);
-        CURLcode res = do_post(30, url, &buffer);
-        if (res == CURLE_OK) {
-            return json::parse(buffer.str());
-        } else {
-            json results = json::object();
-            results["code"] = res;
-            results["body"] = "Error!";
-            return results;
-        }
+        WatsonServiceResult res = do_post(30, url, &buffer);
+        return getJsonResult(res, buffer);
     }
 
     json discovery::get_collection(std::string environment_id, std::string collection_id) {
         std::string url = getApi_url() + "/v1/environments/" + environment_id + "/collections/" + collection_id + "?version=2016-12-29";
         std::ostringstream buffer;
-        CURLcode res = do_get(30, url, &buffer);
-        if (res == CURLE_OK) {
-            return json::parse(buffer.str());
-        } else {
-            json results = json::object();
-            results["code"] = curl_easy_strerror(res);
-            results["body"] = "Error!";
-            return results;
-        }
+        WatsonServiceResult res = do_get(30, url, &buffer);
+        return getJsonResult(res, buffer);
     }
 
     json discovery::get_document(std::string environment_id, std::string collection_id, std::string document_id) {
         std::string url = getApi_url() + "/v1/environments/" + environment_id + "/collections/" + collection_id + "/documents/" + document_id + "?version=2016-12-29";
         std::ostringstream buffer;
-        CURLcode res = do_get(30, url, &buffer);
-        if (res == CURLE_OK) {
-            return json::parse(buffer.str());
-        } else {
-            json results = json::object();
-            results["code"] = res;
-            results["body"] = "Error!";
-            return results;
-        }
+        WatsonServiceResult res = do_get(30, url, &buffer);
+        return getJsonResult(res, buffer);
     }
 
     json discovery::query(std::string environment_id, std::string collection_id, std::string query, std::string aggregations) {
@@ -89,28 +61,14 @@ namespace watson {
             url = url + "&" + aggregations;
         }
         std::ostringstream buffer;
-        CURLcode res = do_get(30, url, &buffer);
-        if (res == CURLE_OK) {
-            return json::parse(buffer.str());
-        } else {
-            json results = json::object();
-            results["code"] = res;
-            results["body"] = "Error!";
-            return results;
-        }
+        WatsonServiceResult res = do_get(30, url, &buffer);
+        return getJsonResult(res, buffer);
     }
 
     json discovery::get_environments() {
         std::ostringstream buffer;
         std::string url = getApi_url() + "/v1/environments?version=2016-12-29";
-        CURLcode res = do_get(30, url, &buffer);
-        if (res == CURLE_OK) {
-            return json::parse(buffer.str());
-        } else {
-            json results = json::object();
-            results["code"] = res;
-            results["body"] = "Error!";
-            return results;
-        }
+        WatsonServiceResult res = do_get(30, url, &buffer);
+        return getJsonResult(res, buffer);
     }
 }

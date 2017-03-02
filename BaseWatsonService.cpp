@@ -58,14 +58,18 @@ size_t watson::BaseWatsonService::data_write(void *buf, size_t size, size_t nmem
     return 0;
 }
 
-CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::ostream *output_stream) {
+watson::WatsonServiceResult
+watson::BaseWatsonService::do_get(long timeout, std::string url, std::ostream *output_stream) {
     CURLcode code(CURLE_FAILED_INIT);
     CURL* curl = curl_easy_init();
     const char *authCString = this->getAuthString();
+    WatsonServiceResult res;
+    res.curl_code = code;
+    res.http_status = -1;
 
     if (authCString) {
         if (CURLE_OK != (code = curl_easy_setopt(curl, CURLOPT_USERPWD, authCString))) {
-            return code;
+            res.curl_code = code;
         }
     }
 
@@ -81,18 +85,19 @@ CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::o
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, url.c_str()))) {
             code = curl_easy_perform(curl);
+            res.curl_code = code;
         }
 
-       getStatusCode(curl);
+        res.http_status = getStatusCode(curl);
         curl_easy_cleanup(curl);
         free((void *) authCString);
     }
-    return code;
+    return res;
 }
 
-CURLcode watson::BaseWatsonService::do_post(long timeout,
-                                            std::string url,
-                                            std::ostream *output_stream) {
+watson::WatsonServiceResult watson::BaseWatsonService::do_post(long timeout,
+                                                       std::string url,
+                                                       std::ostream *output_stream) {
     struct curl_httppost* post = NULL;
     struct curl_httppost* last = NULL;
 
@@ -103,6 +108,10 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
     CURLcode code(CURLE_FAILED_INIT);
     CURL* curl = curl_easy_init();
 
+    WatsonServiceResult res;
+    res.curl_code = code;
+    res.http_status = -1;
+
     if (isVerbose()) {
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     }
@@ -110,7 +119,8 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
     const char *authCString = this->getAuthString();
     if (authCString) {
         if (CURLE_OK != (code = curl_easy_setopt(curl, CURLOPT_USERPWD, authCString))) {
-            return code;
+            res.curl_code = code;
+            return res;
         }
     }
 
@@ -123,24 +133,26 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_HTTPPOST, post))
            && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, url.c_str()))) {
             code = curl_easy_perform(curl);
+            res.curl_code = code;
         }
 
-        getStatusCode(curl);
+        res.http_status = getStatusCode(curl);
 
         curl_easy_cleanup(curl);
         curl_formfree(post);
         free((void *) authCString);
     }
-    return code;
+    return res;
 }
 
-void watson::BaseWatsonService::getStatusCode(CURL *curl) {
+long watson::BaseWatsonService::getStatusCode(CURL *curl) {
     long http_code = 0;
     curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
 
     if (this->isVerbose()) {
         std::cerr << "Status Code: " << http_code << std::endl;
-        }
+    }
+    return http_code;
 }
 
 void watson::BaseWatsonService::addPostParameter(std::shared_ptr<watson::post_parameter> param) {
@@ -165,4 +177,58 @@ const std::string &watson::BaseWatsonService::getVersion() const {
 
 void watson::BaseWatsonService::setVersion(const std::string &version) {
     BaseWatsonService::version = version;
+}
+
+nlohmann::json watson::BaseWatsonService::getJsonResult(watson::WatsonServiceResult res, std::ostringstream &buffer) {
+    if (res.curl_code == CURLE_OK) {
+        return nlohmann::json::parse(buffer.str());
+    } else {
+        nlohmann::json results = nlohmann::json::object();
+        results["curl_code"] = res.curl_code;
+        results["http_status"] = res.http_status;
+        results["message"] = curl_easy_strerror(res.curl_code);
+        results["body"] = buffer.str();
+        return results;
+    }
+}
+
+watson::WatsonServiceResult
+watson::BaseWatsonService::do_delete(long timeout, std::string url, std::ostream *output_stream) {
+    CURLcode code(CURLE_FAILED_INIT);
+    CURL* curl = curl_easy_init();
+
+    WatsonServiceResult res;
+    res.curl_code = code;
+    res.http_status = -1;
+
+    if (isVerbose()) {
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    }
+
+    const char *authCString = this->getAuthString();
+    if (authCString) {
+        if (CURLE_OK != (code = curl_easy_setopt(curl, CURLOPT_USERPWD, authCString))) {
+            res.curl_code = code;
+            return res;
+        }
+    }
+
+    if(curl) {
+        if(CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &data_write))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_stream))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "delete"))
+           && CURLE_OK == (code = curl_easy_setopt(curl, CURLOPT_URL, url.c_str()))) {
+            code = curl_easy_perform(curl);
+            res.curl_code = code;
+        }
+
+        res.http_status = getStatusCode(curl);
+
+        curl_easy_cleanup(curl);
+        free((void *) authCString);
+    }
+    return res;
 }
