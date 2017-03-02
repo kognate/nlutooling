@@ -42,7 +42,9 @@ namespace watson {
     json discovery::upload_document(std::string environment_id, std::string collection_id, std::string filename) {
         std::string url = getApi_url() + "/v1/environments/" + environment_id + "/collections/" + collection_id + "/documents?version=2016-12-29";
         std::ostringstream buffer;
-        CURLcode res = do_post(30, url, filename, &buffer);
+        std::shared_ptr<file_post_parameter> fpp = std::make_shared<file_post_parameter>(std::string("file"), filename);
+        addPostParameter(fpp);
+        CURLcode res = do_post(30, url, &buffer);
         if (res == CURLE_OK) {
             return json::parse(buffer.str());
         } else {

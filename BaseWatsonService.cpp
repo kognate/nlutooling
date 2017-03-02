@@ -90,14 +90,8 @@ CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::o
     return code;
 }
 
-CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::string filename, std::ostream *output_stream) {
-    std::map<std::string, std::string> filename_map = { {std::string("file"), filename } };
-    return do_post(timeout, url, filename_map, output_stream);
-}
-
 CURLcode watson::BaseWatsonService::do_post(long timeout,
                                             std::string url,
-                                            std::map<std::string, std::string> filename_map,
                                             std::ostream *output_stream) {
     struct curl_httppost* post = NULL;
     struct curl_httppost* last = NULL;
@@ -106,24 +100,12 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
         param->form_add(&post, &last);
     }
 
-    for (auto file: filename_map) {
-        curl_formadd(&post,
-                     &last,
-                     CURLFORM_FILENAME,
-                     file.first.c_str(),
-                     CURLFORM_FILE,
-                     file.second.c_str(),
-                     CURLFORM_END);
-    }
-
     CURLcode code(CURLE_FAILED_INIT);
     CURL* curl = curl_easy_init();
-
 
     if (isVerbose()) {
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     }
-
 
     const char *authCString = this->getAuthString();
     if (authCString) {
@@ -159,10 +141,6 @@ void watson::BaseWatsonService::getStatusCode(CURL *curl) {
     if (this->isVerbose()) {
         std::cerr << "Status Code: " << http_code << std::endl;
         }
-}
-
-CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::ostream *output_stream) {
-    return do_post(timeout, url, std::map<std::string, std::string> {}, output_stream);
 }
 
 void watson::BaseWatsonService::addPostParameter(std::shared_ptr<watson::post_parameter> param) {

@@ -60,15 +60,6 @@ namespace watson {
     protected:
         virtual char *getAuthString()= 0;
         CURLcode do_get(long timeout,  std::string url, std::ostream *output_stream);
-        CURLcode do_post(long timeout,
-                         std::string url,
-                         std::string filename,
-                         std::ostream *output_stream);
-
-        CURLcode do_post(long timeout,
-                         std::string url,
-                         std::map<std::string,std::string> filename_map,
-                         std::ostream *output_stream);
 
         void addPostParameter(std::shared_ptr<post_parameter> param);
         std::vector<std::shared_ptr<post_parameter>> getPostParameters();
