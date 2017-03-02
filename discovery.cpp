@@ -33,7 +33,7 @@ namespace watson {
             return json::parse(buffer.str());
         } else {
             json results = json::object();
-            results["code"] = res;
+            results["code"] = curl_easy_strerror(res);
             results["body"] = "Error!";
             return results;
         }
@@ -61,7 +61,7 @@ namespace watson {
             return json::parse(buffer.str());
         } else {
             json results = json::object();
-            results["code"] = res;
+            results["code"] = curl_easy_strerror(res);
             results["body"] = "Error!";
             return results;
         }

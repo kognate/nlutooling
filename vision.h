@@ -6,6 +6,8 @@
 #define WATSON_VISION_H
 
 #include "BaseWatsonService.h"
+#include <boost/algorithm/string/join.hpp>
+#include "post_parameter.h"
 
 namespace watson {
     namespace v3 {
@@ -14,7 +16,13 @@ namespace watson {
         public:
             vision(const std::string &api_key);
 
+        protected:
+            char *getAuthString() override;
+
+        public:
             nlohmann::json classify(std::string filename, std::vector<std::string> classifier_ids);
+
+            nlohmann::json classify_url(std::string target_url, std::vector<std::string> classifier_ids);
 
             nlohmann::json extract_text(std::string filename);
 

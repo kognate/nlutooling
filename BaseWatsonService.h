@@ -17,10 +17,19 @@
 namespace watson {
     class BaseWatsonService {
     private:
-        std::string username, password, api_key, api_url;
+        std::string username, password, api_key, api_url, version;
+    public:
+        const std::string &getVersion() const;
+
+        void setVersion(const std::string &version);
+
+    private:
         static size_t data_write(void* buf, size_t size, size_t nmemb, void* userp);
-        std::vector<post_parameter> post_parameters = std::vector<watson::post_parameter>();
+        std::vector<std::shared_ptr<post_parameter>> post_parameters = std::vector<std::shared_ptr<watson::post_parameter>>();
         bool verbose = {false};
+
+        void getStatusCode(CURL *curl);
+
     public:
         bool isVerbose() const;
 
@@ -61,8 +70,8 @@ namespace watson {
                          std::map<std::string,std::string> filename_map,
                          std::ostream *output_stream);
 
-        void addPostParameter(post_parameter param);
-        std::vector<post_parameter> getPostParameters();
+        void addPostParameter(std::shared_ptr<post_parameter> param);
+        std::vector<std::shared_ptr<post_parameter>> getPostParameters();
 
         CURLcode do_post(long timeout,
                          std::string url,

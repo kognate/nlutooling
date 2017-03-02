@@ -20,33 +20,58 @@ void watson::post_parameter::setName(const std::string &name) {
     post_parameter::name = name;
 }
 
-const std::string &watson::post_parameter::getContent_type() const {
+const std::shared_ptr<std::string> &watson::post_parameter::getContent_type() const {
     return content_type;
 }
 
-void watson::post_parameter::setContent_type(const std::string &content_type) {
+void watson::post_parameter::setContent_type(const std::shared_ptr<std::string> &content_type) {
     post_parameter::content_type = content_type;
 }
 
 watson::file_post_parameter::file_post_parameter(std::string name, std::string file_name, std::string file_path) {
+    setName(name);
+    setFile_name(file_name);
+    setFile_path(file_path);
 }
 
 watson::file_post_parameter::file_post_parameter(std::string name, std::string file_path) {
     setName(name);
     setFile_path(file_path);
-    std::string basename = boost::filesystem::basename(file_path);
-    boost::filesystem::path file = boost::filesystem::change_extension(basename, std::string(""));
-    setFile_name(file.string());
 }
 
-void watson::file_post_parameter::form_add(struct curl_httppost *post, struct curl_httppost *last) {
-    curl_formadd(&post,
-                 &last,
-                 CURLFORM_COPYNAME,
-                 getFile_name().c_str(),
-                 CURLFORM_FILE,
-                 getFile_path().c_str(),
-                 CURLFORM_END);
+void watson::file_post_parameter::form_add(struct curl_httppost **post, struct curl_httppost **last) {
+    int form_size = 3;
+    form_size += getFile_name().size() == 0 ? 0 : 1;
+    form_size += getContent_type() == nullptr ? 0 : 1;
+    struct curl_forms forms[form_size];
+
+    form_size--;
+
+    forms[form_size].option = CURLFORM_END;
+
+    form_size--;
+
+    if (getFile_name().size() > 0) {
+        forms[form_size].option = CURLFORM_FILENAME;
+        forms[form_size].value = getFile_name().c_str();
+        form_size--;
+    }
+
+    if (getContent_type() != nullptr) {
+        forms[form_size].option = CURLFORM_CONTENTTYPE;
+        forms[form_size].value = getContent_type()->c_str();
+        form_size--;
+    }
+
+    forms[form_size].option = CURLFORM_COPYNAME;
+    forms[form_size].value = getName().c_str();
+
+    form_size--;
+
+    forms[form_size].option = CURLFORM_FILE;
+    forms[form_size].value = getFile_path().c_str();
+
+    curl_formadd(post,last, CURLFORM_ARRAY, forms, CURLFORM_END);
 }
 
 void watson::file_post_parameter::setFile_name(const std::string &file_name) {

@@ -83,9 +83,7 @@ CURLcode watson::BaseWatsonService::do_get(long timeout, std::string url, std::o
             code = curl_easy_perform(curl);
         }
 
-        long http_code = 0;
-        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
-
+       getStatusCode(curl);
         curl_easy_cleanup(curl);
         free((void *) authCString);
     }
@@ -104,10 +102,14 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
     struct curl_httppost* post = NULL;
     struct curl_httppost* last = NULL;
 
+    for (auto param: getPostParameters()) {
+        param->form_add(&post, &last);
+    }
+
     for (auto file: filename_map) {
         curl_formadd(&post,
                      &last,
-                     CURLFORM_COPYNAME,
+                     CURLFORM_FILENAME,
                      file.first.c_str(),
                      CURLFORM_FILE,
                      file.second.c_str(),
@@ -116,6 +118,13 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
 
     CURLcode code(CURLE_FAILED_INIT);
     CURL* curl = curl_easy_init();
+
+
+    if (isVerbose()) {
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    }
+
+
     const char *authCString = this->getAuthString();
     if (authCString) {
         if (CURLE_OK != (code = curl_easy_setopt(curl, CURLOPT_USERPWD, authCString))) {
@@ -134,8 +143,7 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
             code = curl_easy_perform(curl);
         }
 
-        long http_code = 0;
-        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
+        getStatusCode(curl);
 
         curl_easy_cleanup(curl);
         curl_formfree(post);
@@ -144,15 +152,24 @@ CURLcode watson::BaseWatsonService::do_post(long timeout,
     return code;
 }
 
+void watson::BaseWatsonService::getStatusCode(CURL *curl) {
+    long http_code = 0;
+    curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+    if (this->isVerbose()) {
+        std::cerr << "Status Code: " << http_code << std::endl;
+        }
+}
+
 CURLcode watson::BaseWatsonService::do_post(long timeout, std::string url, std::ostream *output_stream) {
-    return CURLE_RECV_ERROR;
+    return do_post(timeout, url, std::map<std::string, std::string> {}, output_stream);
 }
 
-void watson::BaseWatsonService::addPostParameter(watson::post_parameter param) {
-
+void watson::BaseWatsonService::addPostParameter(std::shared_ptr<watson::post_parameter> param) {
+    post_parameters.push_back(param);
 }
 
-std::vector<watson::post_parameter> watson::BaseWatsonService::getPostParameters() {
+std::vector<std::shared_ptr<watson::post_parameter>> watson::BaseWatsonService::getPostParameters() {
     return post_parameters;
 }
 
@@ -162,4 +179,12 @@ bool watson::BaseWatsonService::isVerbose() const {
 
 void watson::BaseWatsonService::setVerbose(bool verbose) {
     BaseWatsonService::verbose = verbose;
+}
+
+const std::string &watson::BaseWatsonService::getVersion() const {
+    return version;
+}
+
+void watson::BaseWatsonService::setVersion(const std::string &version) {
+    BaseWatsonService::version = version;
 }
