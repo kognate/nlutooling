@@ -28,7 +28,7 @@ if (EXISTS '/usr/local/Cellar/nlohmann_json/2.1.0/include')
   include_directories('/usr/local/Cellar/nlohmann_json/2.1.0/include')
 endif()
 
-set(SOURCE_FILES main.cpp discovery_cli.cpp discovery.cpp discovery.h nlu_client.cpp nlu_client.h BaseWatsonService.cpp BaseWatsonService.h vision.cpp vision.h post_parameter.cpp post_parameter.h discovery_cli.h)
+set(SOURCE_FILES main.cpp discovery_cli.cpp discovery.cpp discovery.h nlu_client.cpp nlu_client.h BaseWatsonService.cpp BaseWatsonService.h vision.cpp vision.h post_parameter.cpp post_parameter.h discovery_cli.h vision_cli.cpp vision_cli.h WatsonCliRunner.cpp)
 
 find_package(Boost 1.63.0 COMPONENTS system filesystem program_options REQUIRED)
 find_package(CURL REQUIRED)
