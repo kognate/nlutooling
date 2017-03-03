@@ -35,6 +35,16 @@ void watson::vision_cli::run(boost::program_options::parsed_options opts_in) {
 
     watson::v3::vision *v = new watson::v3::vision(vm["api_key"].as<std::string>());
     v->setVerbose(vm.count("verbose") > 0);
-    std::cout << v->classify_url(vm["url"].as<std::string>(), {}) << std::endl;
+    auto runurl = [&v, &vm]() {
+        std::cout << v->classify_url(vm["url"].as<std::string>(), {}) << std::endl;
+        return true;
+    };
 
+    auto runfile = [&v, &vm]() {
+        std::cout << v->classify(vm["file"].as<std::string>(), {}) << std::endl;
+        return true;
+    };
+    has_set_options(vm, {"url"}) && runurl();
+    has_set_options(vm, {"file"}) && runfile();
+    delete(v);
 }
