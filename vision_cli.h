@@ -26,7 +26,9 @@ namespace watson {
 
     public:
         vision_cli();
-        void run(boost::program_options::parsed_options opts_in);
+
+        void performActions(const variables_map &vm);
+        options_description getOptions();
     };
 };
 

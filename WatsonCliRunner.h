@@ -18,7 +18,9 @@ namespace watson {
     class WatsonCliRunner {
 
     public:
-        virtual void run(boost::program_options::parsed_options opts_in) =0;
+        void run(boost::program_options::parsed_options opts_in);
+        virtual void performActions(const variables_map &vm) =0;
+        virtual options_description getOptions() =0;
 
     protected:
         const std::map<std::string, std::string> &getEnvironment_map() const;
