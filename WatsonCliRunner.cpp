@@ -34,7 +34,8 @@ void watson::WatsonCliRunner::run(parsed_options opts_in) {
             notify(vm);
             performActions(vm);
         } catch (const exception& e) {
-            cout << desc << "\n";
+            cerr << e.what() << endl;
+            cout << desc << endl;
         }
     }
 }

@@ -15,6 +15,9 @@ options_description watson::vision_cli::getOptions() {
             ("api_key,k", value<string>()->required(), "Alchemy API key")
             ("url,u", value<string>(), "url to fetch and classify")
             ("file,f", value<string>(), "file to post and classify")
+            ("faces", "find faces in the image")
+            ("get,g", value<string>(), "Get a specific classifier by its ID")
+            ("list,l", "List all classifiers")
             ("verbose,v", "set verbose mode (gives connection info");
     return desc;
 }
@@ -28,10 +31,35 @@ void watson::vision_cli::performActions(const variables_map &vm) {
     };
 
     auto runfile = [&v, &vm]() {
-        cout << v->classify(vm["file"].as<string>(), {}) << endl;
+        auto filename = vm["file"].as<string>();
+        nlohmann::json result = v->classify(filename, {});
+
+        if (vm.count("faces")) {
+            nlohmann::json faces = v->find_faces(filename);
+            // TODO: fix this bug,  it's posting the image twice see #1
+            result["faces"] = faces["images"][0];
+            cout << result << endl;
+        } else {
+            cout << result << endl;
+        }
         return true;
     };
+
+
+    auto listclassifiers = [&v, &vm] {
+        cout << v->list_classifiers() << endl;
+        return true;
+    };
+
+    auto getclassifier = [&v, &vm] {
+        string classifier = vm["get"].as<string>();
+        cout << v->get_classifier(classifier) << endl;
+        return true;
+    };
+
     this->has_set_options(vm, {"url"}) && runurl();
     this->has_set_options(vm, {"file"}) && runfile();
+    this->has_set_options(vm, {"list"}) && listclassifiers();
+    this->has_set_options(vm, {"get"}) && getclassifier();
     delete(v);
 }
