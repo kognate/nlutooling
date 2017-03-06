@@ -66,6 +66,8 @@ namespace watson {
         WatsonServiceResult do_get(long timeout, std::string url, std::ostream *output_stream);
 
         void addPostParameter(std::shared_ptr<post_parameter> param);
+        void clearPostParameters();
+
         std::vector<std::shared_ptr<post_parameter>> getPostParameters();
 
         WatsonServiceResult do_post(long timeout,

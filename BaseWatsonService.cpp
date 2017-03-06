@@ -232,3 +232,7 @@ watson::BaseWatsonService::do_delete(long timeout, std::string url, std::ostream
     }
     return res;
 }
+
+void watson::BaseWatsonService::clearPostParameters() {
+    post_parameters.clear();
+}

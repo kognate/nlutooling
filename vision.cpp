@@ -69,3 +69,11 @@ nlohmann::json watson::v3::vision::find_faces(std::string filename) {
     WatsonServiceResult res = do_post(30, url, &buffer);
     return getJsonResult(res, buffer);
 }
+
+nlohmann::json watson::v3::vision::find_faces() {
+    std::ostringstream buffer;
+    std::string url = getApi_url() + "/v3/detect_faces?api_key=" + getApi_key() + "&version=" + getVersion();
+
+    WatsonServiceResult res = do_post(30, url, &buffer);
+    return getJsonResult(res, buffer);
+}

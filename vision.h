@@ -27,6 +27,7 @@ namespace watson {
             nlohmann::json extract_text(std::string filename);
 
             nlohmann::json find_faces(std::string filename);
+            nlohmann::json find_faces();
 
             nlohmann::json find_food(std::string filename);
 

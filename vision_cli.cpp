@@ -50,9 +50,8 @@ void watson::vision_cli::performActions(const variables_map &vm) {
         nlohmann::json result = v->classify(filename, {});
 
         if (vm.count("faces")) {
-            nlohmann::json faces = v->find_faces(filename);
-            // TODO: fix this bug,  it's posting the image twice see #1
-            result["faces"] = faces["images"][0];
+            nlohmann::json faces = v->find_faces();
+            result["faces"] = faces["images"];
             cout << result << endl;
         } else {
             cout << result << endl;
