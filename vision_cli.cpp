@@ -4,6 +4,16 @@
 
 #include "vision_cli.h"
 
+pair<string,string> splitter(const string &arg) {
+    unsigned long loc {arg.find("=")};
+    pair <string, string> result = pair<string,string>("", arg);
+    if (loc != std::string::npos) {
+        result.first = arg.substr(0,loc);
+        result.second = arg.substr(loc+1);
+    }
+    return result;
+}
+
 watson::vision_cli::vision_cli() {
     setEnvironment_map({{"VISUAL_RECOGNITION_API_KEY", "api_key"}});
 }
@@ -18,6 +28,11 @@ options_description watson::vision_cli::getOptions() {
             ("faces", "find faces in the image")
             ("get,g", value<string>(), "Get a specific classifier by its ID")
             ("list,l", "List all classifiers")
+            ("train,t", "train a classifier")
+            ("name,n", value<string>(), "name of your new classifier")
+            ("delete,d", value<string>(), "delete a classifier")
+            ("positive,p", value<string>()->multitoken(), "zip file for positive class for classifier")
+            ("negative,p", value<string>(), "zip file of negative class for classifier")
             ("verbose,v", "set verbose mode (gives connection info");
     return desc;
 }
@@ -45,7 +60,6 @@ void watson::vision_cli::performActions(const variables_map &vm) {
         return true;
     };
 
-
     auto listclassifiers = [&v, &vm] {
         cout << v->list_classifiers() << endl;
         return true;
@@ -57,9 +71,21 @@ void watson::vision_cli::performActions(const variables_map &vm) {
         return true;
     };
 
+    auto createclassifier = [&v, &vm] {
+        string name = vm["name"].as<string>();
+        return false;
+    };
+
+    auto deleteclassifier = [&v, &vm] {
+        string cid { vm["delete"].as<string>() };
+        cout << v->delete_classifier(cid) << endl;
+        return true;
+    };
+
     this->has_set_options(vm, {"url"}) && runurl();
     this->has_set_options(vm, {"file"}) && runfile();
     this->has_set_options(vm, {"list"}) && listclassifiers();
     this->has_set_options(vm, {"get"}) && getclassifier();
+    this->has_set_options(vm, {"delete"}) && deleteclassifier();
     delete(v);
 }

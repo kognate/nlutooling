@@ -21,6 +21,7 @@ namespace watson {
         void run(boost::program_options::parsed_options opts_in);
         virtual void performActions(const variables_map &vm) =0;
         virtual options_description getOptions() =0;
+        std::pair<std::string, std::string> extra_parser(const std::string &arg);
 
     protected:
         const std::map<std::string, std::string> &getEnvironment_map() const;
@@ -32,6 +33,7 @@ namespace watson {
         std::string nameMapper(std::string arg);
 
         bool has_set_options(boost::program_options::variables_map vm, std::vector<const char *> options);
+
     };
 
 }

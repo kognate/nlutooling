@@ -14,17 +14,21 @@ void watson::WatsonCliRunner::setEnvironment_map(const std::map<std::string, std
 }
 
 void watson::WatsonCliRunner::run(parsed_options opts_in) {
-    options_description desc = getOptions();
+    using placeholders::_1;
 
+    options_description desc = getOptions();
     variables_map vm;
+
+    auto eparse = std::bind(&watson::WatsonCliRunner::extra_parser, this, _1);
 
     vector<string> opts = collect_unrecognized(opts_in.options, include_positional);
     opts.erase(opts.begin());
-    store(command_line_parser(opts).options(desc).run(), vm);
 
-    using placeholders::_1;
-    function<string(string)> nameMapperFunc = std::bind(&watson::WatsonCliRunner::nameMapper, this, _1);
-    std::bind(&watson::vision_cli::nameMapper, this, _1);
+
+    store(command_line_parser(opts).options(desc).extra_parser(eparse).run(), vm);
+
+
+    function<string(string)> nameMapperFunc { std::bind(&watson::WatsonCliRunner::nameMapper, this, _1) };
     store(parse_environment(desc, nameMapperFunc),vm);
 
     if (vm.count("help")) {
@@ -39,6 +43,10 @@ void watson::WatsonCliRunner::run(parsed_options opts_in) {
         }
     }
 }
+
+std::pair<std::string, std::string> watson::WatsonCliRunner::extra_parser(const std::string &arg) {
+    return std::make_pair(std::string(), std::string());
+};
 
 std::string watson::WatsonCliRunner::nameMapper(std::string arg) {
     std::map<std::string, std::string> env_mapper = getEnvironment_map();

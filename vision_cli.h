@@ -23,10 +23,8 @@ namespace watson {
 
     class vision_cli : public virtual WatsonCliRunner {
 
-
     public:
         vision_cli();
-
         void performActions(const variables_map &vm);
         options_description getOptions();
     };
